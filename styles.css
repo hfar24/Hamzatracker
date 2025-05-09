@@ -213,3 +213,25 @@ tr:hover {
     from { transform: translate(-50%, -100%); }
     to { transform: translate(-50%, 0); }
 }
+/* Add to styles.css */
+.chart-card {
+    position: relative;
+    min-height: 400px;
+}
+
+canvas {
+    width: 100% !important;
+    height: 400px !important;
+    margin-top: 1rem;
+}
+
+.chart-card h2 {
+    position: absolute;
+    top: 1rem;
+    left: 1.5rem;
+    z-index: 1;
+    font-size: 1.2rem;
+    background: var(--bg-secondary);
+    padding: 0.5rem 1rem;
+    border-radius: 8px;
+}
