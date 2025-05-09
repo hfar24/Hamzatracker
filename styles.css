@@ -235,3 +235,48 @@ canvas {
     padding: 0.5rem 1rem;
     border-radius: 8px;
 }
+/* Add to styles.css */
+.tradingview-chart {
+    height: 500px;
+    margin: 1rem 0;
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+.chart-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+    padding: 1rem;
+    background: var(--bg-secondary);
+    border-radius: 8px;
+}
+
+.price-indicator {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+#btcLivePrice {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: var(--accent);
+}
+
+.change {
+    padding: 0.25rem 0.75rem;
+    border-radius: 4px;
+    font-weight: bold;
+}
+
+.change.positive {
+    background: var(--profit);
+    color: white;
+}
+
+.change.negative {
+    background: var(--loss);
+    color: white;
+}
