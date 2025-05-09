@@ -236,3 +236,103 @@ document.addEventListener('DOMContentLoaded', () => {
     // Start the application
     init();
 });
+// Add to app.js
+let tvWidget = null;
+let ws = null;
+
+const initLivePriceChart = () => {
+    // Load TradingView script
+    const script = document.createElement('script');
+    script.src = 'https://unpkg.com/lightweight-charts/dist/lightweight-charts.standalone.production.js';
+    script.onload = () => {
+        createChart();
+        connectWebSocket();
+    };
+    document.head.appendChild(script);
+};
+
+const createChart = () => {
+    tvWidget = LightweightCharts.createChart(document.getElementById('tvChart'), {
+        width: document.getElementById('tvChart').clientWidth,
+        height: 500,
+        layout: {
+            background: { color: 'transparent' },
+            textColor: 'var(--text-primary)',
+        },
+        grid: {
+            vertLines: { color: 'var(--border)' },
+            horzLines: { color: 'var(--border)' },
+        },
+        timeScale: {
+            borderColor: 'var(--border)',
+            timeVisible: true,
+        },
+        rightPriceScale: {
+            borderColor: 'var(--border)',
+        },
+    });
+
+    const candleSeries = tvWidget.addCandlestickSeries({
+        upColor: 'var(--profit)',
+        downColor: 'var(--loss)',
+        borderVisible: false,
+        wickUpColor: 'var(--profit)',
+        wickDownColor: 'var(--loss)',
+    });
+
+    // Load initial historical data
+    fetch('https://api.binance.com/api/v3/klines?symbol=BTCUSDT&interval=1h&limit=200')
+        .then(response => response.json())
+        .then(data => {
+            const formattedData = data.map(d => ({
+                time: d[0] / 1000,
+                open: parseFloat(d[1]),
+                high: parseFloat(d[2]),
+                low: parseFloat(d[3]),
+                close: parseFloat(d[4]),
+            }));
+            candleSeries.setData(formattedData);
+        });
+};
+
+const connectWebSocket = () => {
+    ws = new WebSocket('wss://stream.binance.com:9443/ws/btcusdt@kline_1m');
+
+    ws.onmessage = (event) => {
+        const message = JSON.parse(event.data);
+        const candle = message.k;
+        
+        const newCandle = {
+            time: candle.t / 1000,
+            open: parseFloat(candle.o),
+            high: parseFloat(candle.h),
+            low: parseFloat(candle.l),
+            close: parseFloat(candle.c),
+        };
+
+        // Update chart
+        const series = tvWidget.series()[0];
+        series.update(newCandle);
+
+        // Update price display
+        const priceChange = ((newCandle.close - newCandle.open) / newCandle.open) * 100;
+        updatePriceDisplay(newCandle.close, priceChange);
+    };
+};
+
+const updatePriceDisplay = (price, change) => {
+    document.getElementById('btcLivePrice').textContent = `$${price.toLocaleString(undefined, { maximumFractionDigits: 2 })}`;
+    
+    const changeElement = document.getElementById('priceChange24h');
+    changeElement.textContent = `${change >= 0 ? '+' : ''}${change.toFixed(2)}%`;
+    changeElement.className = `change ${change >= 0 ? 'positive' : 'negative'}`;
+};
+
+// Initialize in your main init function
+const init = async () => {
+    initTheme();
+    initLivePriceChart(); // Add this line
+    loadTransactions();
+    await loadMarketData();
+    setInterval(loadMarketData, 300000);
+};
