@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Your Name Portfolio Tracker</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="app.js" defer></script>
+</head>
+<body>
+    <header class="header">
+        <div class="container">
+            <div class="logo">
+                <!-- Replace with your logo -->
+                <h1>YOUR NAME</h1>
+                <p>Portfolio Tracker</p>
+            </div>
+            <div class="portfolio-summary">
+                <div class="total-value">
+                    <span class="label">Total Value</span>
+                    <span class="value" id="totalValue">$0.00</span>
+                </div>
+                <div class="profit-loss">
+                    <span class="label">24h Change</span>
+                    <span class="value" id="24hChange">+0.00%</span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="container">
+        <section class="chart-section">
+            <h2>Portfolio Performance</h2>
+            <canvas id="performanceChart"></canvas>
+        </section>
+
+        <section class="assets-section">
+            <h2>Your Assets</h2>
+            <div class="assets-list" id="assetsList">
+                <!-- Assets will be added here -->
+            </div>
+        </section>
+    </main>
+
+    <!-- Loading overlay -->
+    <div class="loading-overlay" id="loading">
+        <div class="loader"></div>
+    </div>
+</body>
+</html>
