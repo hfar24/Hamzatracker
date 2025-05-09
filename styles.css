@@ -1,87 +1,63 @@
 :root {
-    --bg-primary: #131722;
-    --bg-secondary: #1a1e2c;
-    --text-primary: #ffffff;
-    --accent: #2962ff;
-    --profit: #00b15d;
-    --loss: #ff5b5b;
-    --border: rgba(255,255,255,0.1);
+    --primary: #1a1b26;
+    --secondary: #24283b;
+    --accent: #7aa2f7;
+    --text: #a9b1d6;
+    --profit: #9ece6a;
+    --loss: #f7768e;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Inter', sans-serif;
 }
 
 body {
-    background: var(--bg-primary);
-    color: var(--text-primary);
-    font-family: 'Inter', sans-serif;
-    margin: 0;
-    padding: 0;
+    background: var(--primary);
+    color: var(--text);
+    padding: 2rem;
 }
 
 .container {
     max-width: 1200px;
     margin: 0 auto;
-    padding: 0 20px;
 }
 
-.header {
-    background: var(--bg-secondary);
-    padding: 2rem 0;
-    margin-bottom: 2rem;
-}
-
-.logo h1 {
-    color: var(--accent);
-    margin: 0;
-    font-size: 1.8rem;
-}
-
-.price-header {
-    display: flex;
-    gap: 2rem;
-    margin-top: 1rem;
-}
-
-.price-item {
-    background: var(--bg-primary);
+.chart-container {
+    background: var(--secondary);
     padding: 1rem;
-    border-radius: 8px;
-}
-
-.tradingview-chart {
-    height: 600px;
-    border-radius: 12px;
-    overflow: hidden;
+    border-radius: 1rem;
     margin: 2rem 0;
 }
 
-.portfolio-card {
-    background: var(--bg-secondary);
+.portfolio-section {
+    background: var(--secondary);
     padding: 2rem;
-    border-radius: 12px;
-    margin: 2rem 0;
+    border-radius: 1rem;
 }
 
 .transaction-form {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
     gap: 1rem;
-    background: var(--bg-secondary);
-    padding: 2rem;
-    border-radius: 12px;
+    margin-top: 2rem;
 }
 
 input, select, button {
     padding: 0.8rem;
-    border: 1px solid var(--border);
-    border-radius: 6px;
-    background: var(--bg-primary);
-    color: var(--text-primary);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 8px;
+    background: var(--primary);
+    color: var(--text);
 }
 
 button {
     background: var(--accent);
     color: white;
-    border: none;
     cursor: pointer;
+    border: none;
 }
 
 button:hover {
