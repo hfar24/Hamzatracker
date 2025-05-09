@@ -1,80 +1,85 @@
-let chart = null;
-let ws = null;
+let chart;
 let transactions = JSON.parse(localStorage.getItem('btcTransactions')) || [];
 
-// Initialize Chart
-function initChart() {
-    chart = LightweightCharts.createChart(document.getElementById('tvChart'), {
-        width: document.getElementById('tvChart').clientWidth,
-        height: 600,
-        layout: {
-            background: { color: 'transparent' },
-            textColor: 'var(--text-primary)',
+document.addEventListener('DOMContentLoaded', async () => {
+    // Initialize chart
+    chart = new Chart(document.getElementById('priceChart'), {
+        type: 'line',
+        data: {
+            labels: [],
+            datasets: [{
+                label: 'BTC Price',
+                borderColor: 'var(--accent)',
+                backgroundColor: 'rgba(122, 162, 247, 0.1)',
+                tension: 0.4
+            }]
         },
-        grid: {
-            vertLines: { color: 'var(--border)' },
-            horzLines: { color: 'var(--border)' },
-        },
-        timeScale: {
-            borderColor: 'var(--border)',
-            timeVisible: true,
-            secondsVisible: false,
-        },
-        rightPriceScale: {
-            borderColor: 'var(--border)',
-        },
+        options: {
+            responsive: true,
+            plugins: { legend: { display: false } },
+            scales: {
+                y: { ticks: { color: 'var(--text)' } },
+                x: { ticks: { color: 'var(--text)' } }
+            }
+        }
     });
 
-    const candleSeries = chart.addCandlestickSeries({
-        upColor: 'var(--profit)',
-        downColor: 'var(--loss)',
-        borderUpColor: 'var(--profit)',
-        borderDownColor: 'var(--loss)',
-        wickUpColor: 'var(--profit)',
-        wickDownColor: 'var(--loss)',
-    });
+    // Load initial data
+    await loadData();
+    setInterval(loadData, 60000); // Update every minute
+});
 
-    // Load historical data
-    fetch('https://api.binance.com/api/v3/klines?symbol=BTCUSDT&interval=1h&limit=200')
-        .then(response => response.json())
-        .then(data => {
-            const formattedData = data.map(d => ({
-                time: d[0] / 1000,
-                open: parseFloat(d[1]),
-                high: parseFloat(d[2]),
-                low: parseFloat(d[3]),
-                close: parseFloat(d[4]),
-            }));
-            candleSeries.setData(formattedData);
-        });
+async function loadData() {
+    try {
+        const [priceRes, historyRes] = await Promise.all([
+            fetch('https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd&include_24hr_change=true'),
+            fetch('https://api.coingecko.com/api/v3/coins/bitcoin/market_chart?vs_currency=usd&days=30')
+        ]);
 
-    // Connect to WebSocket
-    ws = new WebSocket('wss://stream.binance.com:9443/ws/btcusdt@kline_1m');
+        const priceData = await priceRes.json();
+        const historyData = await historyRes.json();
 
-    ws.onmessage = (event) => {
-        const message = JSON.parse(event.data);
-        const candle = message.k;
-        
-        const newCandle = {
-            time: candle.t / 1000,
-            open: parseFloat(candle.o),
-            high: parseFloat(candle.h),
-            low: parseFloat(candle.l),
-            close: parseFloat(candle.c),
-        };
+        // Update price display
+        document.getElementById('btcPrice').textContent = `$${priceData.bitcoin.usd.toLocaleString()}`;
+        document.getElementById('btcChange').textContent = 
+            `${priceData.bitcoin.usd_24h_change.toFixed(2)}%`;
+        document.getElementById('btcChange').style.color = 
+            priceData.bitcoin.usd_24h_change >= 0 ? 'var(--profit)' : 'var(--loss)';
 
-        candleSeries.update(newCandle);
-        updatePriceDisplay(newCandle.close);
-    };
+        // Update chart
+        updateChart(historyData.prices);
+        updatePortfolio(priceData.bitcoin.usd);
+    } catch (error) {
+        console.error('Error loading data:', error);
+    }
 }
 
-// Update price display
-function updatePriceDisplay(price) {
-    document.getElementById('btcLivePrice').textContent = `$${price.toLocaleString(undefined, { maximumFractionDigits: 2 })}`;
+function updateChart(prices) {
+    const labels = prices.map(([timestamp]) => 
+        new Date(timestamp).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
+    );
+    
+    chart.data.labels = labels;
+    chart.data.datasets[0].data = prices.map(([, price]) => price);
+    chart.update();
 }
 
-// Transaction handling
-function addTransaction() {
+function updatePortfolio(currentPrice) {
+    const portfolio = transactions.reduce((acc, tx) => {
+        acc.totalBTC += tx.type === 'buy' ? tx.amount : -tx.amount;
+        acc.invested += tx.amount * tx.price;
+        return acc;
+    }, { totalBTC: 0, invested: 0 });
+
+    const currentValue = portfolio.totalBTC * currentPrice;
+    const profitLoss = currentValue - portfolio.invested;
+
+    document.getElementById('totalBTC').textContent = portfolio.totalBTC.toFixed(8);
+    document.getElementById('portfolioValue').textContent = 
+        `$${currentValue.toLocaleString(undefined, { maximumFractionDigits: 2 })}`;
+}
+
+window.addTransaction = () => {
     const transaction = {
         date: document.getElementById('txDate').value,
         type: document.getElementById('txType').value,
@@ -83,30 +88,11 @@ function addTransaction() {
     };
 
     if (!transaction.date || isNaN(transaction.amount) || isNaN(transaction.price)) {
-        alert('Please fill all fields');
+        alert('Please fill all fields correctly');
         return;
     }
 
     transactions.push(transaction);
     localStorage.setItem('btcTransactions', JSON.stringify(transactions));
-    updatePortfolio();
-}
-
-function updatePortfolio() {
-    const totalBTC = transactions.reduce((acc, tx) => {
-        return tx.type === 'buy' ? acc + tx.amount : acc - tx.amount;
-    }, 0);
-
-    document.getElementById('totalBTC').textContent = totalBTC.toFixed(8);
-}
-
-// Initialize
-document.addEventListener('DOMContentLoaded', () => {
-    initChart();
-    updatePortfolio();
-    
-    // Handle window resize
-    window.addEventListener('resize', () => {
-        chart.resize(document.getElementById('tvChart').clientWidth, 600);
-    });
-});
+    loadData(); // Refresh data
+};
