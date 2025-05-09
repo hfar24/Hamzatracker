@@ -180,3 +180,36 @@ tr:hover {
         grid-template-columns: 1fr;
     }
 }
+/* Add these to existing CSS */
+.error-message {
+    position: fixed;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--loss);
+    color: white;
+    padding: 1rem 2rem;
+    border-radius: 8px;
+    animation: slideIn 0.3s ease;
+}
+
+.tx-type {
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    font-weight: bold;
+}
+
+.tx-type.buy {
+    background: var(--profit);
+    color: white;
+}
+
+.tx-type.sell {
+    background: var(--loss);
+    color: white;
+}
+
+@keyframes slideIn {
+    from { transform: translate(-50%, -100%); }
+    to { transform: translate(-50%, 0); }
+}
