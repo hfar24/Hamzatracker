@@ -1,0 +1,89 @@
+:root {
+    --primary: #1a1b26;
+    --secondary: #24283b;
+    --accent: #7aa2f7;
+    --text: #a9b1d6;
+    --profit: #9ece6a;
+    --loss: #f7768e;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Inter', sans-serif;
+}
+
+body {
+    background: var(--primary);
+    color: var(--text);
+    line-height: 1.6;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+}
+
+.header {
+    background: var(--secondary);
+    padding: 2rem 0;
+    margin-bottom: 2rem;
+}
+
+.logo h1 {
+    color: var(--accent);
+    font-size: 2rem;
+    margin-bottom: 0.5rem;
+}
+
+.portfolio-summary {
+    display: flex;
+    gap: 2rem;
+    margin-top: 1.5rem;
+}
+
+.total-value .value {
+    font-size: 2rem;
+    color: var(--accent);
+}
+
+.chart-section {
+    background: var(--secondary);
+    padding: 2rem;
+    border-radius: 1rem;
+    margin-bottom: 2rem;
+}
+
+.assets-list {
+    background: var(--secondary);
+    border-radius: 1rem;
+    padding: 1.5rem;
+}
+
+.loading-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.8);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 999;
+}
+
+.loader {
+    border: 4px solid var(--accent);
+    border-radius: 50%;
+    border-top-color: transparent;
+    width: 40px;
+    height: 40px;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
